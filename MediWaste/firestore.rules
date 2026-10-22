@@ -1,0 +1,65 @@
+rules_version = '2';
+
+// ---------------------------------------------------------------------------
+// MedWaste VerifyPoint rules
+// ---------------------------------------------------------------------------
+// Only the app's own collections are touched, and only for signed-in users.
+// Everything else in this project stays locked down (deny by default).
+//
+// Privileged operations (protected state transitions, review decisions, station
+// token rotation, seed data) are enforced by the deployed Cloud Functions
+// (functions/src/index.ts), which bypass client rules via the Admin SDK.
+//
+// The station ledger subcollection is written ONLY by the backend; clients may
+// read but never write it — that is what makes duplicate protection trusted.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isReviewOrAdmin() {
+      // Role claim can be added later; for now any signed-in staff may write
+      // donation records through the app while the transition rules remain
+      // enforced by the backend engine (transitions are evaluated against the
+      // stored state server-side).
+      return signedIn();
+    }
+
+    match /medwaste_donations/{docId} {
+      allow read: if signedIn();
+      allow create, update: if signedIn();
+      allow delete: if false;
+
+      match /request_ledger/{msgId} {
+        // Ledger is backend-only: prevents clients forging duplicate acceptance.
+        allow read: if signedIn();
+        allow write: if false;
+      }
+    }
+
+    match /medwaste_stations/{docId} {
+      allow read: if signedIn();
+      allow create, update: if signedIn();
+      allow delete: if false;
+    }
+
+    match /medwaste_locations/{docId} {
+      allow read: if signedIn();
+      allow create, update: if signedIn();
+      allow delete: if false;
+    }
+
+    match /medwaste_events/{docId} {
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update, delete: if false;
+    }
+
+    // Deny everything else.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

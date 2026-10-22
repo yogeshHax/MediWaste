@@ -1,0 +1,62 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Next.js
+.next
+out
+/.vercel
+
+# Production
+/build
+
+# Firebase
+.firebaserc
+/.firebase
+firebase-debug.log
+firebase-debug.*.log
+
+# Firebase emulators
+firebase-emulator-data/
+
+# Environment / secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.p12
+*.key
+service-account.json
+serviceAccountKey.json
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+playwright-report
+playwright/.cache
+test-results
+
+# Hardware
+hardware/firmware/*.elf
+hardware/firmware/*.hex
+hardware/firmware/*.bin
+
+# Misc
+*.log
+
+# Build artifacts and package manager lock (exclude from exports/repo if desired)
+.next/
+dist/
+build/
+tsconfig.tsbuildinfo
+package-lock.json
